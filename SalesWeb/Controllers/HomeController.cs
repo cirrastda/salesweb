@@ -17,8 +17,12 @@ namespace SalesWeb.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
-
+            ViewData["Title"] = "About";
+            ViewData["Message"] = "Sistema de Vendas MVC";
+            ViewData["Author"] = "Anderson Matuchenko";
+            ViewData["Site"] = "www.cirrastec.com.br";
+            ViewData["Year"] = DateTime.Now.Year;
+            //return Json(ViewData);
             return View();
         }
 
