@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SalesWeb.Data;
 using SalesWeb.Models;
 using System;
@@ -19,12 +20,19 @@ namespace SalesWeb.Services
 
         public List<Seller> FindAll()
         {
-            return _context.Seller.ToList();
+            
+            return _context.Seller
+                .Include(item => item.Department)
+                .OrderBy(item => item.Name)
+                .ToList();
         }
 
         public Seller FindById(int id)
         {
-            return _context.Seller.FirstOrDefault(item => item.Id == id);
+            
+            return _context.Seller
+                .Include(item => item.Department)
+                .FirstOrDefault(item => item.Id == id);
         }
 
         public void Insert(Seller seller)
