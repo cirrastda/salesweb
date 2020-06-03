@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -48,10 +49,11 @@ namespace SalesWeb.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                //return NotFound();
+                return RedirectToError("Empty Id");
             }
             Seller seller = _sellerService.FindById(id.Value);
-            if (seller == null) { return NotFound(); }
+            if (seller == null) { return RedirectToError("Id not found"); }
             ViewData["Title"] = "Delete Seller";
             return View(seller);
         }
@@ -67,18 +69,18 @@ namespace SalesWeb.Controllers
 
         public IActionResult Details(int? id)
         {
-            if (id == null) { return NotFound(); }
+            if (id == null) { return RedirectToError("Empty Id"); }
             Seller seller = _sellerService.FindById(id.Value);
-            if (seller == null) { return NotFound(); }
+            if (seller == null) { return RedirectToError("Id not found"); }
             ViewData["Title"] = "Seller Details";
             return View(seller);
         }
 
         public IActionResult Edit(int? id)
         {
-            if (id == null) { return NotFound(); }
+            if (id == null) { return RedirectToError("Empty Id"); }
             Seller seller = _sellerService.FindById(id.Value);
-            if (seller == null) { return NotFound(); }
+            if (seller == null) { RedirectToError("Id not found"); }
             List<Department> departments = _departmentService.FindAll();
             var ViewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
             ViewData["Title"] = "Edit Seller";
@@ -86,20 +88,34 @@ namespace SalesWeb.Controllers
             return View(ViewModel);
         }
 
+        private IActionResult RedirectToError(string message)
+        {
+            return RedirectToAction(nameof(Error), new { message = message });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Seller seller)
         {
-            if (id == null || id != seller.Id) { return NotFound(); }
+            if (id == null) { return RedirectToError("Empty Id"); }
+            if (id != seller.Id) { return RedirectToError("The provided Id is different of current seller id"); }
             try { 
                 _sellerService.Update(seller);
                 return RedirectToAction(nameof(Index));
-            } catch(NotFoundException) {
-                return NotFound();
-            } catch(DbConcurrencyException)
+            } catch(NotFoundException e) {
+                return RedirectToError(e.Message);
+            } catch(DbConcurrencyException e)
             {
-                return BadRequest();
+                return RedirectToError("Another resource is using this registry. Cannot perform the action: "+e.Message);
+                //return BadRequest();
             }
+        }
+
+
+        public IActionResult Error(string message)
+        {
+            var ViewModel = new ErrorViewModel { Message = message, RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier };
+            return View(ViewModel);
         }
 
     }
