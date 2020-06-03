@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SalesWeb.Data;
 using SalesWeb.Models;
+using SalesWeb.Services.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,16 +42,35 @@ namespace SalesWeb.Services
             _context.SaveChanges();
         }
 
-        public bool Remove(int id)
+        public void Remove(int id)
         {
             Seller seller = this.FindById(id);
             if (seller != null)
             {
                 _context.Remove(seller);
                 _context.SaveChanges();
-                return true;
+                return;
+            } else
+            {
+                throw new NotFoundException("Seller not found");
             }
-            return false;
+            
+        }
+
+        public void Update(Seller seller)
+        {
+            if (!_context.Seller.Any(item => item.Id == seller.Id))
+            {
+                throw new NotFoundException("Seller not found");
+            }
+            try
+            {
+                _context.Update(seller);
+                _context.SaveChanges();
+            } catch(DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
         }
     }
 }
