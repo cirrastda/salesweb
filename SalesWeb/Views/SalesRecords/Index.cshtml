@@ -1,0 +1,81 @@
+﻿<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-12">
+        <fieldset id="searchType">
+            <legend>Search Type</legend>
+            <div class="row">
+                <div class="col-md-2">
+                    <input type="radio" name="searchType" class="searchType" value="S" checked />&nbsp;Simple
+                </div>
+                <div class="col-md-2">
+                    <input type="radio" name="searchType" class="searchType" value="G" />&nbsp;Group
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <br />
+    <div class="col-md-12" id="divSimple">
+        <form class="form-horizontal" asp-action="SimpleSearch">
+            <fieldset>
+                <legend>Single Search</legend>
+                <div class="form-group">
+                    <label for="minDate" class="col-md-1 control-label">From:</label>
+                    <div class="col-lg-2">
+                        <input type="date" name="start" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="maxDate" class="col-md-1 control-label">To:</label>
+                    <div class="col-lg-2">
+                        <input type="date" name="end" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Search" class="btn btn-primary" />
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="col-md-12" id="divGroup" style="display: none;">
+        <form class="form-horizontal" asp-action="GroupSearch">
+            <fieldset>
+                <legend>Group Search</legend>
+                <div class="form-group">
+                    <label for="minDate" class="col-lg-1 control-label">From:</label>
+                    <div class="col-lg-2">
+                        <input type="date" name="start" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="maxDate" class="col-lg-1 control-label">To:</label>
+                    <div class="col-lg-2">
+                        <input type="date" name="end" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Search" class="btn btn-primary" />
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script language="javascript">
+    console.log($('[name=searchType]'));
+    $(document).ready(function () {
+        
+        $('[name=searchType]').change(function () {
+            var selected = $('[name=searchType]:checked').val();
+            if (selected == 'S') {
+                $('#divSimple').slideDown();
+                $('#divGroup').slideUp();
+            } else {
+                $('#divGroup').slideDown();
+                $('#divSimple').slideUp();
+
+            }
+        });
+
+    });
+
+</script>
