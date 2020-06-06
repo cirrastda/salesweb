@@ -47,9 +47,15 @@ namespace SalesWeb.Services
             var seller = await this.FindByIdAsync(id);
             if (seller != null)
             {
-                _context.Remove(seller);
-                await _context.SaveChangesAsync();
-                return;
+                try
+                {
+                    _context.Remove(seller);
+                    await _context.SaveChangesAsync();
+                    return;
+                } catch(DbUpdateException e)
+                {
+                    throw new IntegrityException(e.Message);
+                }
             }
             else
             {
