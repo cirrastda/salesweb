@@ -29,18 +29,32 @@ namespace SalesWeb.Controllers
             return View(sellers);
         }
 
-        public IActionResult Create()
+        private IActionResult CreateViewModel(String title, Seller seller = null)
         {
             List<Department> departments = _departmentService.FindAll();
             var ViewModel = new SellerFormViewModel { Departments = departments };
-            ViewData["Title"] = "Add Seller";
+            if (seller != null)
+            {
+                ViewModel.Seller = seller;
+            }
+            
+            ViewData["Title"] = title;
             return View(ViewModel);
+
+        }
+        public IActionResult Create()
+        {
+            return this.CreateViewModel("Add Seller");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Seller seller)
         {
+            if (!ModelState.IsValid)
+            {
+                return this.CreateViewModel("Add Seller", seller);
+            }
             _sellerService.Insert(seller);
             return RedirectToAction(nameof(Index));
         }
@@ -81,11 +95,8 @@ namespace SalesWeb.Controllers
             if (id == null) { return RedirectToError("Empty Id"); }
             Seller seller = _sellerService.FindById(id.Value);
             if (seller == null) { RedirectToError("Id not found"); }
-            List<Department> departments = _departmentService.FindAll();
-            var ViewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
-            ViewData["Title"] = "Edit Seller";
 
-            return View(ViewModel);
+            return this.CreateViewModel("Edit Seller", seller);
         }
 
         private IActionResult RedirectToError(string message)

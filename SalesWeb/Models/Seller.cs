@@ -11,15 +11,26 @@ namespace SalesWeb.Models
     {
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "{0} required")]
+        [StringLength(128,MinimumLength = 3,ErrorMessage ="{0} length must be between {2} and {1}")]
         public String Name { get; set; }
+        
         [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "{0} required")]
+        [StringLength(128, MinimumLength = 3, ErrorMessage = "{0} length must be between {2} and {1}")]
+        [EmailAddress(ErrorMessage = "{0} must be a valid -email")]
         public String Email { get; set; }
+        
         [Display (Name="Birth Date")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [Required(ErrorMessage = "{0} required")]
         public DateTime BirthDate { get; set; }
+        
         [Display(Name = "Base Salary")]
         [DisplayFormat(DataFormatString = "{0:F2}")]
+        [Required(ErrorMessage = "{0} required")]
+        [Range(0, 1000000, ErrorMessage = "{0} must be between {1} and {2}")]
         public double Salary { get; set; }
 
         public Department Department { get; set; }
