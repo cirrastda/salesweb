@@ -22,16 +22,16 @@ namespace SalesWeb.Controllers
             _departmentService = departmentService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             ViewData["Title"] = "Sellers";
-            List<Seller> sellers = _sellerService.FindAll();
+            var sellers = await _sellerService.FindAllAsync();
             return View(sellers);
         }
 
-        private IActionResult CreateViewModel(String title, Seller seller = null)
+        private async Task<IActionResult> CreateViewModel(String title, Seller seller = null)
         {
-            List<Department> departments = _departmentService.FindAll();
+            var departments = await _departmentService.FindAllAsync();
             var ViewModel = new SellerFormViewModel { Departments = departments };
             if (seller != null)
             {
@@ -42,31 +42,31 @@ namespace SalesWeb.Controllers
             return View(ViewModel);
 
         }
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return this.CreateViewModel("Add Seller");
+            return await this.CreateViewModel("Add Seller");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Seller seller)
+        public async Task<IActionResult> Create(Seller seller)
         {
             if (!ModelState.IsValid)
             {
-                return this.CreateViewModel("Add Seller", seller);
+                return await this.CreateViewModel("Add Seller", seller);
             }
-            _sellerService.Insert(seller);
+            await _sellerService.InsertAsync(seller);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 //return NotFound();
                 return RedirectToError("Empty Id");
             }
-            Seller seller = _sellerService.FindById(id.Value);
+            Seller seller = await _sellerService.FindByIdAsync(id.Value);
             if (seller == null) { return RedirectToError("Id not found"); }
             ViewData["Title"] = "Delete Seller";
             return View(seller);
@@ -74,29 +74,29 @@ namespace SalesWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
 
-            _sellerService.Remove(id);
+            await _sellerService.RemoveAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null) { return RedirectToError("Empty Id"); }
-            Seller seller = _sellerService.FindById(id.Value);
+            Seller seller = await _sellerService.FindByIdAsync(id.Value);
             if (seller == null) { return RedirectToError("Id not found"); }
             ViewData["Title"] = "Seller Details";
             return View(seller);
         }
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) { return RedirectToError("Empty Id"); }
-            Seller seller = _sellerService.FindById(id.Value);
+            Seller seller = await _sellerService.FindByIdAsync(id.Value);
             if (seller == null) { RedirectToError("Id not found"); }
 
-            return this.CreateViewModel("Edit Seller", seller);
+            return await this.CreateViewModel("Edit Seller", seller);
         }
 
         private IActionResult RedirectToError(string message)
@@ -106,12 +106,12 @@ namespace SalesWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Seller seller)
+        public async Task<IActionResult> Edit(int id, Seller seller)
         {
             if (id == null) { return RedirectToError("Empty Id"); }
             if (id != seller.Id) { return RedirectToError("The provided Id is different of current seller id"); }
             try { 
-                _sellerService.Update(seller);
+                await _sellerService.UpdateAsync(seller);
                 return RedirectToAction(nameof(Index));
             } catch(NotFoundException e) {
                 return RedirectToError(e.Message);

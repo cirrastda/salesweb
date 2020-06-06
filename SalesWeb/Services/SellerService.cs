@@ -19,6 +19,63 @@ namespace SalesWeb.Services
             _context = context;
         }
 
+        public async Task<List<Seller>> FindAllAsync()
+        {
+
+            return await _context.Seller
+                .Include(item => item.Department)
+                .OrderBy(item => item.Name)
+                .ToListAsync();
+        }
+
+        public async Task<Seller> FindByIdAsync(int id)
+        {
+
+            return await _context.Seller
+                .Include(item => item.Department)
+                .FirstOrDefaultAsync(item => item.Id == id);
+        }
+
+        public async Task InsertAsync(Seller seller)
+        {
+            _context.Add(seller);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveAsync(int id)
+        {
+            var seller = await this.FindByIdAsync(id);
+            if (seller != null)
+            {
+                _context.Remove(seller);
+                await _context.SaveChangesAsync();
+                return;
+            }
+            else
+            {
+                throw new NotFoundException("Seller not found");
+            }
+
+        }
+
+        public async Task UpdateAsync(Seller seller)
+        {
+            bool hasAny = await _context.Seller.AnyAsync(item => item.Id == seller.Id);
+            if (!hasAny)
+            {
+                throw new NotFoundException("Seller not found");
+            }
+            try
+            {
+                _context.Update(seller);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
+        }
+        /*
         public List<Seller> FindAll()
         {
             
@@ -72,5 +129,6 @@ namespace SalesWeb.Services
                 throw new DbConcurrencyException(e.Message);
             }
         }
+        */
     }
 }
