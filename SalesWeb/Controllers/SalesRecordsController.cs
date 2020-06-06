@@ -35,10 +35,16 @@ namespace SalesWeb.Controllers
             return View(salesRecords);
         }
 
-        public async Task<IActionResult> GroupSearch()
+        public async Task<IActionResult> GroupSearch(DateTime? start, DateTime? end)
         {
             ViewData["Title"] = "Sales Records - Group Search";
-            return View();
+            if (!start.HasValue) { start = new DateTime(DateTime.Now.Year, 1, 1); }
+            if (!end.HasValue) { end = DateTime.Now; }
+            ViewData["start"] = start.Value.ToString("dd/MM/yyyy");
+            ViewData["end"] = end.Value.ToString("dd/MM/yyyy");
+
+            var salesRecords = await _salesRecordService.FindByDateGroupAsync(start, end);
+            return View(salesRecords);
         }
     }
 }
